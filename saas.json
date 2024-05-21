@@ -1,0 +1,9 @@
+{
+  "xsappname":"spring-person-crud",
+  "appUrls": {
+    "onSubscription" : "https://person-crud-back-ox.cfapps.us10-001.hana.ondemand.com/api/v1/tenants/{tenantId}"
+  },
+  "displayName" : "Person Crud MTA",
+  "description" : "Person Crud MTA sample application",
+  "category" : "Custom SaaS Applications"
+}

@@ -1,0 +1,38 @@
+applications:
+  # Application
+  - name: spring-person-crud
+    path: target/person-crud-0.0.1-SNAPSHOT.jar
+    buildpack: sap_java_buildpack_jakarta
+    memory: 1024M
+    routes:
+      - route: person-crud-back-ox.cfapps.us10-001.hana.ondemand.com
+    env:
+      SPRING_DATASOURCE_URL: "jdbc:postgresql://${vcap.services.postgres.credentials.hostname}:${vcap.services.postgres.credentials.port}/${vcap.services.postgres.credentials.dbname}"
+      SPRING_DATASOURCE_USERNAME: ${vcap.services.postgres.credentials.username}
+      SPRING_DATASOURCE_PASSWORD: ${vcap.services.postgres.credentials.password}
+      SPRING_PROFILES_ACTIVE: cloud
+      SAP_JWT_TRUST_ACL: '[{"clientid":"*","identityzone":"sap-provisioning"}]'
+      JBP_CONFIG_COMPONENTS: "jres: ['com.sap.xs.java.buildpack.jre.SAPMachineJRE']"
+      JBP_CONFIG_DEBUG: '{enabled: true}'
+    services:
+      - postgres
+      - person-crud-xsuaa
+
+  # Router
+  - name: spring-person-crud-app-router
+    routes:
+      - route: person-crud-approuter-xv.cfapps.us10-001.hana.ondemand.com
+    memory: 100M
+    path: web
+    env:
+      TENANT_HOST_PATTERN: "^(.*)-person-crud-approuter-(.*).cfapps.us10-001.hana.ondemand.com"
+      destinations: >
+        [
+          {
+            "name": "spring-person-crud",
+            "url": "https://person-crud-back-ox.cfapps.us10-001.hana.ondemand.com/",
+            "forwardAuthToken": true
+          }
+        ]
+    services:
+      - person-crud-xsuaa
